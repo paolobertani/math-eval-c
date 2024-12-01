@@ -1,11 +1,9 @@
 /*
 
 math-eval
-version 1.0
+version 2.0
 
 a math expression evaluator
-
-math-eval.c
 
 math eval api to be included in your project
 
@@ -63,6 +61,287 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // ********************
 
 
+//
+// Returns a pointer to a new `MathEvaluation`
+// or NULL in case of failure (cannot allocate
+// memory).
+//
+// `expression` must be a null terminated string
+//
+// The function makes its own copy of the string
+// passed
+//
+// The MathEvaluation returned must be freed with
+// `MathEvaluationDispose`.
+//
+
+MathEvaluation* MathEvaluationNew( const char *expression )
+{
+    MathEvaluation *eval;
+
+    eval = malloc( sizeof( MathEvaluation ) );
+
+    if( ! eval )
+    {
+        return eval;
+    }
+
+    eval->expression = malloc( strlen( expression ) + 1 );
+
+    if( ! eval->expression )
+    {
+        free( eval );
+        return NULL;
+    }
+
+    strcpy( (char *)eval->expression, expression );
+
+    eval->params = NULL;
+    eval->cursor = NULL;
+    eval->result = 0.0;
+    eval->roundBracketsCount = 0;
+    eval->error = "";
+
+    return eval;
+}
+
+
+
+//
+// Disposes MathEvaluation structure
+// freeing memory
+//
+
+void MathEvaluationDispose( MathEvaluation *eval )
+{
+    MathEvalParam *param,
+                  *next;
+
+    param = eval->params;
+    while( param != NULL )
+    {
+        next = param->next;
+        free( param );
+        param = next;
+    }
+
+    free( (void *) eval->expression );
+
+    free( eval );
+}
+
+
+
+//
+// Returns the result of a `MathEvaluation`
+// If the evaluation has not been performed yet or ended in error
+// then 0.0 is returned
+//
+
+double MathEvaluationGetResult( MathEvaluation *eval )
+{
+    return eval->result;
+}
+
+
+
+//
+// Returns the description of the error occurred during the last
+// call to `MathEvaluationPerform` or `MathEvaluationSetParam`
+// And the approximate position the error was detected in the
+// expression.
+// If no error occurred or none of the functions were called
+// then an empty string is returned
+//
+
+const char* MathEvaluationGetError( MathEvaluation *eval, int *position )
+{
+    *position = ( eval->cursor != NULL ) ? ( (int) ( eval->cursor - eval->expression ) ) : 0;
+
+    return eval->error;
+}
+
+
+
+//
+// Set the value for the passed parameter.
+// If the parameter exists the value is overridden.
+// Parameter name can consist alphabetical characters
+// and numbers and must not exceed 255 characters.
+// Must start with a character and must not be
+// an expression keyword or constant.
+// Parameters are case sensitive.
+//
+// The function makes its own copy of the passed
+// parameter name
+//
+
+MathEvaluationStatus MathEvaluationSetParam(
+    MathEvaluation *eval,
+    const char *name,
+    double value )
+{
+    MathEvalParam *param,
+                  *current;
+
+    unsigned long i;
+    size_t len;
+    char c;
+
+    const char *reserved[] =
+    {
+        "e",
+        "exp",
+        "fact",
+        "pi",
+        "pow",
+        "cos",
+        "sin",
+        "tan",
+        "log",
+        "max",
+        "min",
+        "acos",
+        "asin",
+        "atan",
+        "average",
+        "avg",
+        "*" // `*` means "end of array"
+    };
+
+    // check for emptyness
+
+    len = strlen( name );
+
+    if( len == 0 )
+    {
+        eval->error = "parameter name is empty";
+        return MathEvaluationFailure;
+    }
+
+    if( len > 255 )
+    {
+        eval->error = "parameter name exceeds 255 characters in length";
+        return MathEvaluationFailure;
+    }
+
+    // check reserved keyw
+
+    i = 0;
+    while( true )
+    {
+        if( reserved[ i ][ 0 ] == '*' )
+        {
+            break;
+        }
+
+        if( strcmp( reserved[ i ], name ) == 0 )
+        {
+            eval->error= "parameter name is a reserved keyword";
+            return MathEvaluationFailure;
+        }
+
+        i++;
+    }
+
+    // is a-z A-Z 0-9, 1st char isn't number
+
+    i = 0;
+    while( true )
+    {
+        c = name[ i ];
+
+        if( c == 0 )
+        {
+            break;
+        }
+
+        if( ( c >= '0' && c <= '9' && i > 0 ) ||
+            ( c >= 'a' && c <= 'z'          ) ||
+            ( c >= 'A' && c <= 'Z'          ) )
+        {
+            //
+        }
+        else
+        {
+            eval->error = "invalid character in parameter name";
+            return MathEvaluationFailure;
+        }
+
+        i++;
+    }
+
+    // check if param exists and in case overwrite val
+
+    param = eval->params;
+    while( param != NULL )
+    {
+        if( strcmp( param->name, name ) == 0 )
+        {
+            param->value = value;
+            return MathEvaluationSuccess;
+        }
+
+        param = param->next;
+    }
+
+    param = NULL;
+
+    // alloc and init param, name is copied
+
+    param = ( MathEvalParam * ) calloc( 1, sizeof( MathEvalParam ) );
+    if( ! param )
+    {
+        eval->error= "cannot allocate memory";
+        return MathEvaluationFailure;
+    }
+
+    strcpy( (char *) param->name, name );
+    param->len = len;
+    param->value = value;
+    param->next = NULL;
+
+    // put param in list on top or before param with shorter name
+
+    if( eval->params == NULL )
+    {
+        eval->params = param;
+        return MathEvaluationSuccess;
+    }
+
+    if( eval->params->len < len )
+    {
+        param->next = eval->params;
+        eval->params = param;
+        return MathEvaluationSuccess;
+    }
+
+    current = eval->params;
+
+    while( true )
+    {
+        if( current->next == NULL )
+        {
+            current->next = param;
+            return MathEvaluationSuccess;
+        }
+
+        if( current->next->len < len )
+        {
+            param->next = current->next;
+            current->next = param;
+            return MathEvaluationSuccess;
+        }
+
+        current = current->next;
+    }
+
+    // this point is never reached
+
+    return MathEvaluationSuccess;
+}
+
+
 
 // Evaluates an expression.
 // The function returns a status of success or failure
@@ -70,10 +349,9 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 MathEvaluationStatus MathEvaluationPerform(
     MathEvaluation *eval,       // the MathEvaluation structure
-    const char     *expression, // the expression as a null terminated C string
     double         *result )    // RETURN: the result of the evaluation
 {
-    eval->expression = eval->cursor = expression;
+    eval->cursor = eval->expression;
     eval->roundBracketsCount = 0;
     eval->result = 0;
     eval->error = NULL;
@@ -107,10 +385,34 @@ void MathEvaluationPrintError( MathEvaluation *eval )
     if( eval->error && strlen( eval->error ) > 0 )
     {
         fprintf( stderr, "%s\n", eval->error );
-        fprintf( stderr, "%s\n", eval->expression );
-        fprintf( stderr, "%*c^\n", (int)( eval->cursor - eval->expression ), ' ' );
+        if( eval->cursor != NULL )
+        {
+            fprintf( stderr, "%s\n", eval->expression );
+            fprintf( stderr, "%*c^\n", (int)( eval->cursor - eval->expression ), ' ' );
+        }
     }
 }
+
+
+
+// Debug utility function to dump params
+// that have been set (if any)
+
+void MathEvalDumpParams( MathEvaluation *eval )
+{
+    MathEvalParam *p = eval->params;
+    int count = 1;
+    while( p != NULL )
+    {
+        printf( "%d: %s = %f  ->  0x%lx\n", count, p->name, p->value, (unsigned long) p );
+        p = p->next;
+        count++;
+        if(count>10) break;
+    }
+    printf( "\n---\n\n" );
+
+}
+
 
 
 
@@ -226,11 +528,12 @@ double MathEvalProcessAddends(
 // F1 [ * F2  [ / F3 [ * F4 ... ] ] ]
 // Where Fn is a value or a higher precedence expression.
 
-double MathEvalProcessFactors( MathEvaluation *eval,
-                        double          leftValue, // The value (already fetched) on the left to be multiplied(divided);
-                        MathEvalToken   op,        // is it multiply or divide;
-                        bool            isExponent,// is an exponent being evaluated ?
-                        MathEvalToken  *leftOp )  // RETURN: factors are over, this is the next operator (token).
+double MathEvalProcessFactors(
+    MathEvaluation *eval,
+    double          leftValue, // The value (already fetched) on the left to be multiplied(divided);
+    MathEvalToken   op,        // is it multiply or divide;
+    bool            isExponent,// is an exponent being evaluated ?
+    MathEvalToken  *leftOp )  // RETURN: factors are over, this is the next operator (token).
 {
     MathEvalToken
            token,
@@ -593,7 +896,7 @@ double MathEvalProcessFactorial( MathEvaluation *eval,
 
 
 // Parses the next token and advances the cursor.
-// The function returns a number if the token is a value or a constant.
+// The function returns a number if the token is a value a const. or a param.
 // Whitespace is ignored.
 
 double MathEvalProcessToken( MathEvaluation *eval,
@@ -602,12 +905,16 @@ double MathEvalProcessToken( MathEvaluation *eval,
     MathEvalToken
            t;
     double v;
+    MathEvalParam
+          *param;
 
     t = ETBlk;
     v = 0;
 
     while( t == ETBlk )
     {
+        // value maybe
+
         if( ( *eval->cursor >= '0' && *eval->cursor <= '9' ) || *eval->cursor == '.' )
         {
             v = MathEvalProcessValue( eval );
@@ -624,6 +931,23 @@ double MathEvalProcessToken( MathEvaluation *eval,
         }
         else
         {
+            // parameter maybe
+
+            param = eval->params;
+            while( param != NULL )
+            {
+                if( strncmp( param->name, eval->cursor, param->len ) == 0 )
+                {
+                    *token = ETVal;
+                    eval->cursor += param->len;
+                    return param->value;
+                }
+
+                param = param->next;
+            }
+
+            // token maybe
+
             switch( *eval->cursor )
             {
                 case '\n':

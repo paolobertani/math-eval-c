@@ -1,7 +1,7 @@
 math-eval - A math expression evaluator in C
 ===
 
-`version 1.0`
+`version 2.0`
 
 **math-eval** is a library to evaluate a mathematical expressions into a string and getting the result as a `double` value.
 
@@ -16,20 +16,27 @@ The values computed are limited to the range of the **c** `double` type.
 &nbsp;
 
 
-Building
-========
+Building Command Line Tool
+===
 
 `$ make`
 
-Compiles the code and put the executable in the current working directory.
+Compiles the code and put the both the executable and the tests executable in the current working directory.
 
 Then it's ready to be invoked with `$ ./math-eval`
 
-or
+Example:
 
-`$ ./math-eval-test` if you want to run tests.
+```
+$. /math-eval 'cos(-pi)'
+-1.000
+```
 
-Tests are run by default at the end of the build process.
+Run
+
+`$ ./math-eval-test` to execute tests.
+
+Note that tests are already run by default at the end of the build process.
 
 &nbsp;
 
@@ -53,7 +60,7 @@ Requires root privileges.
 
 &nbsp;
 
-Command line tool
+Command line tool usage
 =====
 
 `$ math-eval`
@@ -189,7 +196,7 @@ To switch **math-eval** behaviour to conform with **math notation** just change 
 
     #define math-eval_unary_minus_has_highest_precedence false
 
-Test test suite is "*unary minus operator precedence aware*"" and tests accordingly to the value of the above constant.
+The test suite is "*unary minus operator precedence aware*"" and tests accordingly to the value of the above constant.
 
 &nbsp;
 
@@ -234,54 +241,106 @@ Examples
 Embedding math-eval in your project
 ===============================
 
-Embedding **math-eval** is trivial. Just add `math-eval.h` and `math-eval.c` to your project.
+Embedding **math-eval** is trivial. Just add `math-eval.h`, `math-eval-private` and `math-eval.c` to your project, `#include "math-eval.h"` where needed.
 
-`#include "math-eval.h"` where **math-eval** is needed; then...
+&nbsp;
+###Structures
+&nbsp;
 
-    // The math-eval structure
-    MathEvaluation ev;
+`MathEvaluation`
 
-    // the expression as a c string
-    const char *expr = "2+2";
+Stores the data needed to perform a math evaluation.
 
-    double         result; // result of the evaluation
-    MathEvalStatus status; // evaluation succedded or failed ?
-    const char     *error; // description of error (if any)
+Normally you'll use a pointer to it: `MathEvaluation *mathEvaluation;`
 
-    // execute evaluation
-    status = MathEvaluationPerform( &ev, expr, &result );
+&nbsp;
+###Functions
+&nbsp;
 
-    // evaluation succeeded ?
-    if( status == MathEvalSuccess )
-    {
-        // do something with result
-    }
-    else
-    {
-        // you may get the error description
-        error = ev.error;
-        // or print the error with the built-in function
-        MathEvalPrintError( &ev );
-    }
+####MathEvaluationNew
+
+`MathEvaluation *MathEvaluationNew( const char *expression );`
+
+Allocate and initialize the MathEvaluation structure; `expression` is copied.
+In the unlikely case that memory allocation fails then NULL is returned.
+
+&nbsp;
+
+####MathEvaluationSetParam
+
+`MathEvaluationStatus MathEvaluationSetParam( MathEvaluation *mathEvaluation,`
+`                                             const char     *name,` 
+`                                             double         value );`
+
+Define a named parameter and its value.
+`name` is copied.
+Several defined parameter may be added to the MathEvaluation.
+If the parameter already exists its value is overridden.
+The parameter name must begin with a letter.
+Allowed characters are `A-Za-z0-9`.
+The parameter must not be a reserved keyword (ex. `cos`, `pi`...) 
+The returned value is `MathEvaluationSuccess` or `MathEvaluationFailure`.
+
+&nbsp;
+
+####MathEvaluationPerform
+
+`MathEvaluationStatus MathEvaluationPerform( MathEvaluation *mathEvaluation,`
+`                                            double         *result );`
+
+Performs the math expression evaluation.
+
+`MathEvaluationStatus MathEvaluationSetParam( MathEvaluation *mathEvaluation,`
+`                                             const char     *name,` 
+`                                             double         value );`
+
+Define a named parameter and its value.
+`name` is copied.
+Several defined parameter may be added to the MathEvaluation.
+If the parameter already exists its value is overridden.
+The parameter name must begin with a letter.
+Allowed characters are `A-Za-z0-9`.
+The parameter must not be a reserved keyword (ex. `cos`, `pi`...) 
+The returned value is `MathEvaluationSuccess` or `MathEvaluationFailure`.
+
+&nbsp;
+
+####MathEvaluationGetError
+
+`const char *MathEvaluationGetError( MathEvaluation *mathEvaluation,
+                                     int            *position );`
+                                     
+In case of *MathEvaluationFailure* returns a string explaining the error.
+If the error occurred during the evaluation `MathEvaluationPerform` then the approximate position of the error in the expression is returned.
+
+&nbsp;
+
+####MathEvaluationPrintError
+
+`void MathEvaluationPrintError( MathEvaluation *mathEvaluation );`
+                                     
+Utility function that prints to stdout the error.
+
+&nbsp;
+
+####MathEvaluationGetResult
+
+`double MathEvaluationGetResult( MathEvaluation *mathEvaluation );`
+                                     
+Utility function that returns the result of the last evaluation performed.
+
+&nbsp;
+
+####MathEvaluationDispose
+
+`void MathEvaluationDispose( MathEvaluation *mathEvaluation );`
+                                     
+Free up memory.
 
 &nbsp;
 
 A note about the algorithm
 ==========================
-
-**Memory**
-
-**math-eval** does not perform dynamic memory allocation (`malloc()`, `calloc()`...)
-
-The maximum level of recursion (when performing an expression evaluation) is given by the maximum depth of the expression (the most deeply nested expression using brackets or functions produces the deepest level of recursion).
-
-&nbsp;
-
-**Data races**
-
-The `MathEvaluationPerform()` function is thread safe. Provided that a given `MathEvaluation` struct is not shared between threads.
-
-&nbsp;
 
 **Floating point exceptions catching**
 
@@ -295,17 +354,11 @@ Note that this approach is *not guaranted 100% to work on every implementation/p
 
 In that case a compilation error should occurr; furthermore **the test suite checks if floating point exceptions are properly catched**. If build or test fail then the macro will need to be adjusted (or disabled in case you don't mind catching floating point exceptions).
 
-Exception catching can be turned off setting to false a constant in `math-eval.h`:
+Exception catching can be turned off setting to false the constant in `math-eval.h`:
 
     #define math-eval_catch_fp_exceptions false
 
-&nbsp;
-
-**Side note:** an alternate approach would have been to implement `SIGFPE` signal catching, but this would have required a global variable and rendered the `MathEvaluationPerform()` function no more thread safe. So for now I avoided it.
-
-Note that division by zero and factorial of negative value are explicitly checked **before** the operation.
-
-&nbsp;
+Division by zero and factorial of negative value are explicitly checked **before** the operation.
 
 **The double oddity (as usual)**
 

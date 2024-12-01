@@ -1,10 +1,6 @@
 //
 //  math-eval
-//  version 1.0
-//
-//  a math expression evaluator in c
-//
-//  main.c
+//  version 2.0
 //
 //  command line tool
 //
@@ -26,7 +22,7 @@
 
 int main( int argc, const char * argv[] )
 {
-    MathEvaluation  eval;
+    MathEvaluation  *eval;
     double          result;
 
     long int        precision;
@@ -122,15 +118,24 @@ int main( int argc, const char * argv[] )
         // If evaluation succeeds the result is printed.
         // If fails then prints the error.
 
-        if( MathEvaluationPerform( &eval, argv[ argc - 1 ], &result ) == MathEvaluationSuccess )
+        eval = MathEvaluationNew( argv[ argc - 1 ] );
+        if( ! eval )
+        {
+            printf( "cannot allocate memory\n" );
+            exit(1);
+        }
+
+        if( MathEvaluationPerform( eval, &result ) == MathEvaluationSuccess )
         {
             printf( "%.*f\n", (int)precision, result );
         }
         else
         {
-            MathEvaluationPrintError( &eval );
-            exit( 1 );
+            MathEvaluationPrintError( eval );
+            exit( 0 );
         }
+
+        MathEvaluationDispose( eval );
     }
     else
     {
@@ -140,3 +145,4 @@ int main( int argc, const char * argv[] )
 
     return 0;
 }
+

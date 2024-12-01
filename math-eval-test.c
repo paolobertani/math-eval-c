@@ -1,11 +1,4 @@
 //
-//  math-eval
-//  version 1.0
-//
-//  a math expression evaluator in c
-//
-//  math-eval-test.c
-//
 //  test suite
 //
 //  Copyright (c) 2024 Paolo Bertani - Kalei S.r.l.
@@ -297,11 +290,12 @@ void MathEvalRunTests( void )
 
 void MathEvalTest( int lineNumber, MathEvaluationStatus expectedStatus, double expectedResult, char *expression )
 {
-    MathEvaluation       eval;
+    MathEvaluation       *eval;
     MathEvaluationStatus status;
     double               result;
 
-    status = MathEvaluationPerform( &eval, expression, &result );
+    eval = MathEvaluationNew( expression );
+    status = MathEvaluationPerform( eval, &result );
 
     if( status == expectedStatus && result == expectedResult ) return;
 
@@ -314,9 +308,8 @@ void MathEvalTest( int lineNumber, MathEvaluationStatus expectedStatus, double e
     if( status == MathEvaluationFailure )
     {
         printf( "Error:\n" );
-        MathEvaluationPrintError( &eval );
+        MathEvaluationPrintError( eval );
         printf( "\n" );
     }
-
-    exit( 1 );
+    MathEvaluationDispose( eval );
 }
