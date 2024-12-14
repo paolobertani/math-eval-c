@@ -609,23 +609,29 @@ double MathEvalProcessFactors(
 
         if( nextOp == ETFct )
         {
-            #if eeval_unary_minus_has_highest_precedence
+            if( math_eval_unary_minus_has_highest_precedence )
+            {
                 rightValue = MathEvalProcessFactorial( eval, rightValue * sign, &nextOp );
                 sign = 1;
-            #else
+            }
+            else
+            {
                 rightValue = MathEvalProcessFactorial( eval, rightValue, &nextOp );
-            #endif
+            }
             if( eval->error ) return 0;
         }
 
         if( nextOp == ETExc )
         {
-            #if eeval_unary_minus_has_highest_precedence
+            if( math_eval_unary_minus_has_highest_precedence )
+            {
                 rightValue = MathEvalProcessExponentiation( eval, rightValue * sign, &nextOp );
                 sign = 1;
-            #else
+            }
+            else
+            {
                 rightValue = MathEvalProcessExponentiation( eval, rightValue, &nextOp );
-            #endif
+            }
             if( eval->error ) return 0;
         }
 
@@ -661,7 +667,6 @@ double MathEvalProcessFactors(
         // (because exponentiation ^ operator have higher precedence)
     }
     while( ( op == ETMul || op == ETDiv ) && ! isExponent );
-
 
     *leftOp = op;
 

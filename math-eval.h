@@ -29,7 +29,7 @@
 
 // leave to true (default) to give unitary minus highest precedece like in most programming languages
 // set to false to give lowest precedence like in math notation (see README.md for details)
-#define math_eval_unary_minus_has_highest_precedence true
+#define math_eval_unary_minus_has_highest_precedence false
 
 
 
