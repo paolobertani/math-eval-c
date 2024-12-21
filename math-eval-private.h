@@ -9,14 +9,19 @@
 
 
 
+#include <math.h>
+#include <stdio.h>
+#include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
+#include <stddef.h>
+#include <stdbool.h>
+#include <inttypes.h>
+
+
+
 #ifndef math_eval_private_h
 #define math_eval_private_h
-
-
-
-#include <stdbool.h>
-#include <stddef.h>
-#include <inttypes.h>
 
 
 
