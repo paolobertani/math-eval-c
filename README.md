@@ -1,7 +1,7 @@
 math-eval - A math expression evaluator in C
 ===
 
-`version 2.1`
+`version 2.2`
 
 **math-eval** is a library to evaluate a mathematical expressions: supply the espression as a C string and get the result as a `double` value.
 

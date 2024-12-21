@@ -1,6 +1,6 @@
 //
 //  math-eval
-//  version 2.1
+//  version 2.2
 //
 //  command line tool
 //
