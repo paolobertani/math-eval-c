@@ -281,12 +281,12 @@ void MathEvalRunTests( void )
 
 void MathEvalTest( int lineNumber, MathEvaluationStatus expectedStatus, double expectedResult, char *expression )
 {
-    MathEvaluation       *eval;
+    MathEvaluation       *matheval;
     MathEvaluationStatus status;
     double               result;
 
-    eval = MathEvaluationNew( expression );
-    status = MathEvaluationPerform( eval, &result );
+    matheval = MathEvaluationNew( expression );
+    status = MathEvaluationPerform( matheval, &result );
 
     if( status == expectedStatus && result == expectedResult ) return;
 
@@ -299,8 +299,8 @@ void MathEvalTest( int lineNumber, MathEvaluationStatus expectedStatus, double e
     if( status == MathEvaluationFailure )
     {
         printf( "Error:\n" );
-        MathEvaluationPrintError( eval );
+        MathEvaluationPrintError( matheval );
         printf( "\n" );
     }
-    MathEvaluationDispose( eval );
+    MathEvaluationDispose( matheval );
 }

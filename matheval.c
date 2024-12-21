@@ -77,32 +77,32 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 MathEvaluation* MathEvaluationNew( const char *expression )
 {
-    MathEvaluation *eval;
+    MathEvaluation *matheval;
 
-    eval = malloc( sizeof( MathEvaluation ) );
+    matheval = malloc( sizeof( MathEvaluation ) );
 
-    if( ! eval )
+    if( ! matheval )
     {
-        return eval;
+        return matheval;
     }
 
-    eval->expression = malloc( strlen( expression ) + 1 );
+    matheval->expression = malloc( strlen( expression ) + 1 );
 
-    if( ! eval->expression )
+    if( ! matheval->expression )
     {
-        free( eval );
+        free( matheval );
         return NULL;
     }
 
-    strcpy( (char *)eval->expression, expression );
+    strcpy( (char *)matheval->expression, expression );
 
-    eval->params = NULL;
-    eval->cursor = NULL;
-    eval->result = 0.0;
-    eval->roundBracketsCount = 0;
-    eval->error = "";
+    matheval->params = NULL;
+    matheval->cursor = NULL;
+    matheval->result = 0.0;
+    matheval->roundBracketsCount = 0;
+    matheval->error = "";
 
-    return eval;
+    return matheval;
 }
 
 
@@ -112,12 +112,12 @@ MathEvaluation* MathEvaluationNew( const char *expression )
 // freeing memory
 //
 
-void MathEvaluationDispose( MathEvaluation *eval )
+void MathEvaluationDispose( MathEvaluation *matheval )
 {
     MathEvalParam *param,
                   *next;
 
-    param = eval->params;
+    param = matheval->params;
     while( param != NULL )
     {
         next = param->next;
@@ -125,9 +125,9 @@ void MathEvaluationDispose( MathEvaluation *eval )
         param = next;
     }
 
-    free( (void *) eval->expression );
+    free( (void *) matheval->expression );
 
-    free( eval );
+    free( matheval );
 }
 
 
@@ -138,9 +138,9 @@ void MathEvaluationDispose( MathEvaluation *eval )
 // then 0.0 is returned
 //
 
-double MathEvaluationGetResult( MathEvaluation *eval )
+double MathEvaluationGetResult( MathEvaluation *matheval )
 {
-    return eval->result;
+    return matheval->result;
 }
 
 
@@ -154,11 +154,11 @@ double MathEvaluationGetResult( MathEvaluation *eval )
 // then an empty string is returned
 //
 
-const char* MathEvaluationGetError( MathEvaluation *eval, int *position )
+const char* MathEvaluationGetError( MathEvaluation *matheval, int *position )
 {
-    *position = ( eval->cursor != NULL ) ? ( (int) ( eval->cursor - eval->expression ) ) : 0;
+    *position = ( matheval->cursor != NULL ) ? ( (int) ( matheval->cursor - matheval->expression ) ) : 0;
 
-    return eval->error;
+    return matheval->error;
 }
 
 
@@ -177,7 +177,7 @@ const char* MathEvaluationGetError( MathEvaluation *eval, int *position )
 //
 
 MathEvaluationStatus MathEvaluationSetParam(
-    MathEvaluation *eval,
+    MathEvaluation *matheval,
     const char *name,
     double value )
 {
@@ -215,13 +215,13 @@ MathEvaluationStatus MathEvaluationSetParam(
 
     if( len == 0 )
     {
-        eval->error = "parameter name is empty";
+        matheval->error = "parameter name is empty";
         return MathEvaluationFailure;
     }
 
     if( len > 255 )
     {
-        eval->error = "parameter name exceeds 255 characters in length";
+        matheval->error = "parameter name exceeds 255 characters in length";
         return MathEvaluationFailure;
     }
 
@@ -237,7 +237,7 @@ MathEvaluationStatus MathEvaluationSetParam(
 
         if( strcmp( reserved[ i ], name ) == 0 )
         {
-            eval->error= "parameter name is a reserved keyword";
+            matheval->error= "parameter name is a reserved keyword";
             return MathEvaluationFailure;
         }
 
@@ -264,7 +264,7 @@ MathEvaluationStatus MathEvaluationSetParam(
         }
         else
         {
-            eval->error = "invalid character in parameter name";
+            matheval->error = "invalid character in parameter name";
             return MathEvaluationFailure;
         }
 
@@ -273,7 +273,7 @@ MathEvaluationStatus MathEvaluationSetParam(
 
     // check if param exists and in case overwrite val
 
-    param = eval->params;
+    param = matheval->params;
     while( param != NULL )
     {
         if( strcmp( param->name, name ) == 0 )
@@ -292,7 +292,7 @@ MathEvaluationStatus MathEvaluationSetParam(
     param = ( MathEvalParam * ) calloc( 1, sizeof( MathEvalParam ) );
     if( ! param )
     {
-        eval->error= "cannot allocate memory";
+        matheval->error= "cannot allocate memory";
         return MathEvaluationFailure;
     }
 
@@ -303,20 +303,20 @@ MathEvaluationStatus MathEvaluationSetParam(
 
     // put param in list on top or before param with shorter name
 
-    if( eval->params == NULL )
+    if( matheval->params == NULL )
     {
-        eval->params = param;
+        matheval->params = param;
         return MathEvaluationSuccess;
     }
 
-    if( eval->params->len < len )
+    if( matheval->params->len < len )
     {
-        param->next = eval->params;
-        eval->params = param;
+        param->next = matheval->params;
+        matheval->params = param;
         return MathEvaluationSuccess;
     }
 
-    current = eval->params;
+    current = matheval->params;
 
     while( true )
     {
@@ -348,26 +348,26 @@ MathEvaluationStatus MathEvaluationSetParam(
 // The result is in `*result`
 
 MathEvaluationStatus MathEvaluationPerform(
-    MathEvaluation *eval,       // the MathEvaluation structure
+    MathEvaluation *matheval,   // the MathEvaluation structure
     double         *result )    // RETURN: the result of the evaluation
 {
-    eval->cursor = eval->expression;
-    eval->roundBracketsCount = 0;
-    eval->result = 0;
-    eval->error = NULL;
+    matheval->cursor = matheval->expression;
+    matheval->roundBracketsCount = 0;
+    matheval->result = 0;
+    matheval->error = NULL;
 
-    eval->result = MathEvalProcessAddends( eval, -1, true, false, NULL );
+    matheval->result = MathEvalProcessAddends( matheval, -1, true, false, NULL );
 
-    *result = eval->result;
+    *result = matheval->result;
 
-    if( eval->error )
+    if( matheval->error )
     {
         *result = 0;
         return MathEvaluationFailure;
     }
     else
     {
-        eval->error = "";
+        matheval->error = "";
         return MathEvaluationSuccess;
     }
 }
@@ -380,15 +380,15 @@ MathEvaluationStatus MathEvaluationPerform(
 // and a caret under the expression approximately
 // where the error occurred.
 
-void MathEvaluationPrintError( MathEvaluation *eval )
+void MathEvaluationPrintError( MathEvaluation *matheval )
 {
-    if( eval->error && strlen( eval->error ) > 0 )
+    if( matheval->error && strlen( matheval->error ) > 0 )
     {
-        fprintf( stderr, "%s\n", eval->error );
-        if( eval->cursor != NULL )
+        fprintf( stderr, "%s\n", matheval->error );
+        if( matheval->cursor != NULL )
         {
-            fprintf( stderr, "%s\n", eval->expression );
-            fprintf( stderr, "%*c^\n", (int)( eval->cursor - eval->expression ), ' ' );
+            fprintf( stderr, "%s\n", matheval->expression );
+            fprintf( stderr, "%*c^\n", (int)( matheval->cursor - matheval->expression ), ' ' );
         }
     }
 }
@@ -398,9 +398,9 @@ void MathEvaluationPrintError( MathEvaluation *eval )
 // Debug utility function to dump params
 // that have been set (if any)
 
-void MathEvalDumpParams( MathEvaluation *eval )
+void MathEvalDumpParams( MathEvaluation *matheval )
 {
-    MathEvalParam *p = eval->params;
+    MathEvalParam *p = matheval->params;
     int count = 1;
     while( p != NULL )
     {
@@ -430,7 +430,7 @@ void MathEvalDumpParams( MathEvaluation *eval )
 // "breakOn" parameters define cases where the function must exit.
 
 double MathEvalProcessAddends(
-    MathEvaluation *eval,
+    MathEvaluation *matheval,
     int64_t         breakOnRoundBracketsCount, // If open brackets count goes down to this count then exit;
     bool            breakOnETEof,              // exit if the end of the string '\0' is met;
     bool            breakOnETcom,              // exit if a comma is met;
@@ -448,7 +448,7 @@ double MathEvalProcessAddends(
     // 0 + ...
 
     result = 0;
-    rightOp = ETSum;
+    rightOp = MET_Sum;
 
     do
     {
@@ -456,24 +456,24 @@ double MathEvalProcessAddends(
 
         // [ Each addend A is treated as a (potential and higher-precedence)
         //   multiplication and evaluated as 1 * A with the function below ]
-        value = MathEvalProcessFactors( eval, 1, ETMul, false, &rightOp );
-        if( eval->error ) return 0;
+        value = MathEvalProcessFactors( matheval, 1, MET_Mul, false, &rightOp );
+        if( matheval->error ) return 0;
 
-        result = leftOp == ETSum ? ( result + value ) : ( result - value );
+        result = leftOp == MET_Sum ? ( result + value ) : ( result - value );
 
         // ...and go on as long there are sums ands subs.
     }
-    while( rightOp == ETSum || rightOp == ETSub );
+    while( rightOp == MET_Sum || rightOp == MET_Sub );
 
     // A round close bracket:
     // check for negative count.
 
-    if( rightOp == ETrbc )
+    if( rightOp == MET_rbc )
     {
-        eval->roundBracketsCount--;
-        if( eval->roundBracketsCount < 0 )
+        matheval->roundBracketsCount--;
+        if( matheval->roundBracketsCount < 0 )
         {
-            eval->error = "unexpected close round bracket";
+            matheval->error = "unexpected close round bracket";
             return 0;
         }
     }
@@ -487,11 +487,11 @@ double MathEvalProcessAddends(
 
     // Check if must exit
 
-    if( ( eval->roundBracketsCount == breakOnRoundBracketsCount ) || ( breakOnETEof && rightOp == ETEof ) || ( breakOnETcom && rightOp == ETcom ) )
+    if( ( matheval->roundBracketsCount == breakOnRoundBracketsCount ) || ( breakOnETEof && rightOp == MET_Eof ) || ( breakOnETcom && rightOp == MET_com ) )
     {
         if( eexception(result) )
         {
-            eval->error = "result is complex or too big";
+            matheval->error = "result is complex or too big";
             return 0;
         }
 
@@ -502,20 +502,20 @@ double MathEvalProcessAddends(
 
     switch( rightOp )
     {
-        case ETEof:
-            eval->error = "unexpected end of expression";
+        case MET_Eof:
+            matheval->error = "unexpected end of expression";
             break;
 
-        case ETrbc:
-            eval->error = "unexpected close round bracket";
+        case MET_rbc:
+            matheval->error = "unexpected close round bracket";
             break;
 
-        case ETcom:
-            eval->error = "unexpeced comma";
+        case MET_com:
+            matheval->error = "unexpeced comma";
             break;
 
         default:
-            eval->error = "unexpeced symbol";
+            matheval->error = "unexpeced symbol";
             break;
     }
 
@@ -529,7 +529,7 @@ double MathEvalProcessAddends(
 // Where Fn is a value or a higher precedence expression.
 
 double MathEvalProcessFactors(
-    MathEvaluation *eval,
+    MathEvaluation *matheval,
     double          leftValue, // The value (already fetched) on the left to be multiplied(divided);
     MathEvalToken   op,        // is it multiply or divide;
     bool            isExponent,// is an exponent being evaluated ?
@@ -544,23 +544,23 @@ double MathEvalProcessFactors(
 
     do
     {
-        rightValue = MathEvalProcessToken( eval, &token );
-        if( eval->error ) return 0;
+        rightValue = MathEvalProcessToken( matheval, &token );
+        if( matheval->error ) return 0;
 
         // Unary minus or plus ?
         // store the sign and get the next token
 
-        if( token == ETSub )
+        if( token == MET_Sub )
         {
             sign = -1;
-            rightValue = MathEvalProcessToken( eval, &token );
-            if( eval->error ) return 0;
+            rightValue = MathEvalProcessToken( matheval, &token );
+            if( matheval->error ) return 0;
         }
-        else if( token == ETSum )
+        else if( token == MET_Sum )
         {
             sign = 1;
-            rightValue = MathEvalProcessToken( eval, &token );
-            if( eval->error ) return 0;
+            rightValue = MathEvalProcessToken( matheval, &token );
+            if( matheval->error ) return 0;
         }
         else
         {
@@ -570,59 +570,59 @@ double MathEvalProcessFactors(
         // Open round bracket?
         // The expression between brackets is evaluated.
 
-        if( token == ETrbo )
+        if( token == MET_rbo )
         {
-            eval->roundBracketsCount++;
+            matheval->roundBracketsCount++;
 
-            rightValue = MathEvalProcessAddends( eval, eval->roundBracketsCount - 1, false, false, NULL );
-            if( eval->error ) return 0;
+            rightValue = MathEvalProcessAddends( matheval, matheval->roundBracketsCount - 1, false, false, NULL );
+            if( matheval->error ) return 0;
 
-            token = ETVal;
+            token = MET_Val;
         }
 
         // A function ?
 
-        if( token == ETCos || token == ETSin || token == ETTan || token == ETASi || token == ETACo || token == ETATa || token == ETFac || token == ETLog || token == ETExp || token == ETPow || token == ETMax || token == ETMin || token == ETAvg )
+        if( token == MET_Cos || token == MET_Sin || token == MET_Tan || token == MET_ASi || token == MET_ACo || token == MET_ATa || token == MET_Fac || token == MET_Log || token == MET_Exp || token == MET_Pow || token == MET_Max || token == MET_Min || token == MET_Avg )
         {
-            rightValue = MathEvalProcessFunction( eval, token );
-            if( eval->error ) return 0;
+            rightValue = MathEvalProcessFunction( matheval, token );
+            if( matheval->error ) return 0;
 
-            token = ETVal;
+            token = MET_Val;
         }
 
         // Excluded previous cases then
         // the token must be a number.
 
-        if( token != ETVal )
+        if( token != MET_Val )
         {
-            eval->error = "expected value";
+            matheval->error = "expected value";
             return 0;
         }
 
         // Get beforehand the next token
         // to see if it's an exponential or factorial operator
 
-        MathEvalProcessToken( eval, &nextOp );
-        if( eval->error ) return 0;
+        MathEvalProcessToken( matheval, &nextOp );
+        if( matheval->error ) return 0;
 
         // Unary minus precedence (highest/lowest) affects this section of code
 
-        if( nextOp == ETFct )
+        if( nextOp == MET_Fct )
         {
-            rightValue = MathEvalProcessFactorial( eval, rightValue, &nextOp );
-            if( eval->error ) return 0;
+            rightValue = MathEvalProcessFactorial( matheval, rightValue, &nextOp );
+            if( matheval->error ) return 0;
         }
 
-        if( nextOp == ETExc )
+        if( nextOp == MET_Exc )
         {
-            rightValue = MathEvalProcessExponentiation( eval, rightValue, &nextOp );
-            if( eval->error ) return 0;
+            rightValue = MathEvalProcessExponentiation( matheval, rightValue, &nextOp );
+            if( matheval->error ) return 0;
         }
 
         // multiplication/division is finally
         // calculated
 
-        if( op == ETMul )
+        if( op == MET_Mul )
         {
             leftValue = leftValue * rightValue * sign;
         }
@@ -630,7 +630,7 @@ double MathEvalProcessFactors(
         {
             if( rightValue == 0 )
             {
-                eval->error = "division by zero";
+                matheval->error = "division by zero";
                 return 0;
             }
             leftValue = leftValue / rightValue * sign;
@@ -638,7 +638,7 @@ double MathEvalProcessFactors(
 
         if( eexception( leftValue ) )
         {
-            eval->error = "result is too big";
+            matheval->error = "result is too big";
             return 0;
         }
 
@@ -650,7 +650,7 @@ double MathEvalProcessFactors(
         // ...unless an exponent is evaluated
         // (because exponentiation ^ operator have higher precedence)
     }
-    while( ( op == ETMul || op == ETDiv ) && ! isExponent );
+    while( ( op == MET_Mul || op == MET_Div ) && ! isExponent );
 
     *leftOp = op;
 
@@ -663,7 +663,7 @@ double MathEvalProcessFactors(
 // inside the round brackets then computes the function
 // specified by the token `func`.
 
-double MathEvalProcessFunction( MathEvaluation *eval, MathEvalToken func )
+double MathEvalProcessFunction( MathEvaluation *matheval, MathEvalToken func )
 {
     double   result,
              result2;
@@ -676,61 +676,61 @@ double MathEvalProcessFunction( MathEvaluation *eval, MathEvalToken func )
 
     // Eat an open round bracket and count it
 
-    MathEvalProcessToken( eval, &token );
-    if( eval->error ) return 0;
+    MathEvalProcessToken( matheval, &token );
+    if( matheval->error ) return 0;
 
-    if( token != ETrbo )
+    if( token != MET_rbo )
     {
-        eval->error = "expected open round bracket after function name";
+        matheval->error = "expected open round bracket after function name";
         return 0;
     }
 
-    eval->roundBracketsCount++;
+    matheval->roundBracketsCount++;
 
     switch( func )
     {
-        case ETSin:
-            result = MathEvalProcessAddends( eval, eval->roundBracketsCount - 1, false, false, NULL );
-            if( eval->error ) return 0;
+        case MET_Sin:
+            result = MathEvalProcessAddends( matheval, matheval->roundBracketsCount - 1, false, false, NULL );
+            if( matheval->error ) return 0;
             result = sin( result );
             break;
 
-        case ETCos:
-            result = MathEvalProcessAddends( eval, eval->roundBracketsCount - 1, false, false, NULL );
-            if( eval->error ) return 0;
+        case MET_Cos:
+            result = MathEvalProcessAddends( matheval, matheval->roundBracketsCount - 1, false, false, NULL );
+            if( matheval->error ) return 0;
             result = cos( result );
             break;
 
-        case ETTan:
-            result = MathEvalProcessAddends( eval, eval->roundBracketsCount - 1, false, false, NULL );
-            if( eval->error ) return 0;
+        case MET_Tan:
+            result = MathEvalProcessAddends( matheval, matheval->roundBracketsCount - 1, false, false, NULL );
+            if( matheval->error ) return 0;
             result = tan( result );
             break;
 
-        case ETASi:
-            result = MathEvalProcessAddends( eval, eval->roundBracketsCount - 1, false, false, NULL );
-            if( eval->error ) return 0;
+        case MET_ASi:
+            result = MathEvalProcessAddends( matheval, matheval->roundBracketsCount - 1, false, false, NULL );
+            if( matheval->error ) return 0;
             result = asin( result );
             break;
 
-        case ETACo:
-            result = MathEvalProcessAddends( eval, eval->roundBracketsCount - 1, false, false, NULL );
-            if( eval->error ) return 0;
+        case MET_ACo:
+            result = MathEvalProcessAddends( matheval, matheval->roundBracketsCount - 1, false, false, NULL );
+            if( matheval->error ) return 0;
             result = acos( result );
             break;
 
-        case ETATa:
-            result = MathEvalProcessAddends( eval, eval->roundBracketsCount - 1, false, false, NULL );
-            if( eval->error ) return 0;
+        case MET_ATa:
+            result = MathEvalProcessAddends( matheval, matheval->roundBracketsCount - 1, false, false, NULL );
+            if( matheval->error ) return 0;
             result = atan( result );
             break;
 
-        case ETFac:
-            result = MathEvalProcessAddends( eval, eval->roundBracketsCount - 1, false, false, NULL );
-            if( eval->error ) return 0;
+        case MET_Fac:
+            result = MathEvalProcessAddends( matheval, matheval->roundBracketsCount - 1, false, false, NULL );
+            if( matheval->error ) return 0;
             if( result < 0 )
             {
-                eval->error = "attempt to evaluate factorial of negative number";
+                matheval->error = "attempt to mathevaluate factorial of negative number";
             }
             else
             {
@@ -738,43 +738,43 @@ double MathEvalProcessFunction( MathEvaluation *eval, MathEvalToken func )
             }
             break;
 
-        case ETExp:
-            result = MathEvalProcessAddends( eval, eval->roundBracketsCount - 1, false, false, NULL );
-            if( eval->error ) return 0;
+        case MET_Exp:
+            result = MathEvalProcessAddends( matheval, matheval->roundBracketsCount - 1, false, false, NULL );
+            if( matheval->error ) return 0;
             result = exp( result );
             break;
 
-        case ETPow:
-            result = MathEvalProcessAddends( eval, -1, false, true, NULL );
-            if( eval->error ) return 0;
-            result2 = MathEvalProcessAddends( eval, eval->roundBracketsCount - 1, false, false, NULL );
-            if( eval->error ) return 0;
+        case MET_Pow:
+            result = MathEvalProcessAddends( matheval, -1, false, true, NULL );
+            if( matheval->error ) return 0;
+            result2 = MathEvalProcessAddends( matheval, matheval->roundBracketsCount - 1, false, false, NULL );
+            if( matheval->error ) return 0;
             result = pow( result, result2 );
             break;
 
-        case ETLog:
-            result = MathEvalProcessAddends( eval, eval->roundBracketsCount - 1, false, true, &tokenThatCausedBreak );
-            if( eval->error ) return 0;
-            if( tokenThatCausedBreak == ETrbc )
+        case MET_Log:
+            result = MathEvalProcessAddends( matheval, matheval->roundBracketsCount - 1, false, true, &tokenThatCausedBreak );
+            if( matheval->error ) return 0;
+            if( tokenThatCausedBreak == MET_rbc )
             {
                 // log(n) with one parameter
                 result = log( result );
             }
             else
             {
-                result2 = MathEvalProcessAddends( eval, eval->roundBracketsCount - 1, false, false, NULL );
-                if( eval->error ) return 0;
+                result2 = MathEvalProcessAddends( matheval, matheval->roundBracketsCount - 1, false, false, NULL );
+                if( matheval->error ) return 0;
                 result = log( result2 ) / log( result );
             }
             break;
 
-        case ETMax:
-            result = MathEvalProcessAddends( eval, eval->roundBracketsCount - 1, false, true, &tokenThatCausedBreak );
-            if( eval->error ) return 0;
-            while( tokenThatCausedBreak == ETcom )
+        case MET_Max:
+            result = MathEvalProcessAddends( matheval, matheval->roundBracketsCount - 1, false, true, &tokenThatCausedBreak );
+            if( matheval->error ) return 0;
+            while( tokenThatCausedBreak == MET_com )
             {
-                result2 = MathEvalProcessAddends( eval, eval->roundBracketsCount - 1, false, true, &tokenThatCausedBreak );
-                if( eval->error ) return 0;
+                result2 = MathEvalProcessAddends( matheval, matheval->roundBracketsCount - 1, false, true, &tokenThatCausedBreak );
+                if( matheval->error ) return 0;
 
                 if( result2 > result )
                 {
@@ -783,13 +783,13 @@ double MathEvalProcessFunction( MathEvaluation *eval, MathEvalToken func )
             }
             break;
 
-        case ETMin:
-            result = MathEvalProcessAddends( eval, eval->roundBracketsCount - 1, false, true, &tokenThatCausedBreak );
-            if( eval->error ) return 0;
-            while( tokenThatCausedBreak == ETcom )
+        case MET_Min:
+            result = MathEvalProcessAddends( matheval, matheval->roundBracketsCount - 1, false, true, &tokenThatCausedBreak );
+            if( matheval->error ) return 0;
+            while( tokenThatCausedBreak == MET_com )
             {
-                result2 = MathEvalProcessAddends( eval, eval->roundBracketsCount - 1, false, true, &tokenThatCausedBreak );
-                if( eval->error ) return 0;
+                result2 = MathEvalProcessAddends( matheval, matheval->roundBracketsCount - 1, false, true, &tokenThatCausedBreak );
+                if( matheval->error ) return 0;
 
                 if( result2 < result )
                 {
@@ -798,14 +798,14 @@ double MathEvalProcessFunction( MathEvaluation *eval, MathEvalToken func )
             }
             break;
 
-        case ETAvg:
-            result = MathEvalProcessAddends( eval, eval->roundBracketsCount - 1, false, true, &tokenThatCausedBreak );
-            if( eval->error ) return 0;
+        case MET_Avg:
+            result = MathEvalProcessAddends( matheval, matheval->roundBracketsCount - 1, false, true, &tokenThatCausedBreak );
+            if( matheval->error ) return 0;
             count = 1;
-            while( tokenThatCausedBreak == ETcom )
+            while( tokenThatCausedBreak == MET_com )
             {
-                result2 = MathEvalProcessAddends( eval, eval->roundBracketsCount - 1, false, true, &tokenThatCausedBreak );
-                if( eval->error ) return 0;
+                result2 = MathEvalProcessAddends( matheval, matheval->roundBracketsCount - 1, false, true, &tokenThatCausedBreak );
+                if( matheval->error ) return 0;
 
                 result += result2;
                 count++;
@@ -820,7 +820,7 @@ double MathEvalProcessFunction( MathEvaluation *eval, MathEvalToken func )
 
     if( eexception( result ) )
     {
-        eval->error = "result is complex or too big";
+        matheval->error = "result is complex or too big";
         return 0;
     }
 
@@ -831,20 +831,20 @@ double MathEvalProcessFunction( MathEvaluation *eval, MathEvalToken func )
 
 // Evaluates an exponentiation.
 
-double MathEvalProcessExponentiation( MathEvaluation *eval,
+double MathEvalProcessExponentiation( MathEvaluation *matheval,
                                       double          base,     // The base has already been fetched;
                                       MathEvalToken  *rightOp ) // RETURN: the token (operator) that follows.
 {
     double exponent,
            result;
 
-    exponent = MathEvalProcessFactors( eval, 1, ETMul, true, rightOp );
-    if( eval->error ) return 0;
+    exponent = MathEvalProcessFactors( matheval, 1, MET_Mul, true, rightOp );
+    if( matheval->error ) return 0;
 
     result = pow( base, exponent );
     if( eexception( result ) )
     {
-        eval->error = "result is complex or too big";
+        matheval->error = "result is complex or too big";
         return 0;
     }
 
@@ -855,7 +855,7 @@ double MathEvalProcessExponentiation( MathEvaluation *eval,
 
 // Evaluates a factorial using the Gamma function.
 
-double MathEvalProcessFactorial( MathEvaluation *eval,
+double MathEvalProcessFactorial( MathEvaluation *matheval,
                                  double          value,     // The value to compute has already been fetched;
                                  MathEvalToken  *rightOp )  // RETURN: the token (operator) that follows.
 {
@@ -863,8 +863,8 @@ double MathEvalProcessFactorial( MathEvaluation *eval,
 
     if( value < 0 )
     {
-        eval->error = "attempt to evaluate factorial of negative number";
-        *rightOp = ETErr;
+        matheval->error = "attempt to mathevaluate factorial of negative number";
+        *rightOp = MET_Err;
         return 0;
     }
 
@@ -872,12 +872,12 @@ double MathEvalProcessFactorial( MathEvaluation *eval,
 
     if( eexception( result ) )
     {
-        eval->error = "result is complex or too big";
+        matheval->error = "result is complex or too big";
         return 0;
     }
 
-    MathEvalProcessToken( eval, rightOp );
-    if( eval->error ) return 0;
+    MathEvalProcessToken( matheval, rightOp );
+    if( matheval->error ) return 0;
 
     return result;
 }
@@ -888,7 +888,7 @@ double MathEvalProcessFactorial( MathEvaluation *eval,
 // The function returns a number if the token is a value a const. or a param.
 // Whitespace is ignored.
 
-double MathEvalProcessToken( MathEvaluation *eval,
+double MathEvalProcessToken( MathEvaluation *matheval,
                              MathEvalToken  *token ) // RETURN: the token.
 {
     MathEvalToken
@@ -897,24 +897,24 @@ double MathEvalProcessToken( MathEvaluation *eval,
     MathEvalParam
           *param;
 
-    t = ETBlk;
+    t = MET_Blk;
     v = 0;
 
-    while( t == ETBlk )
+    while( t == MET_Blk )
     {
         // value maybe
 
-        if( ( *eval->cursor >= '0' && *eval->cursor <= '9' ) || *eval->cursor == '.' )
+        if( ( *matheval->cursor >= '0' && *matheval->cursor <= '9' ) || *matheval->cursor == '.' )
         {
-            v = MathEvalProcessValue( eval );
-            if( eval->error )
+            v = MathEvalProcessValue( matheval );
+            if( matheval->error )
             {
-                t = ETErr;
+                t = MET_Err;
                 return t;
             }
             else
             {
-                t = ETVal;
+                t = MET_Val;
             }
             break;
         }
@@ -922,13 +922,13 @@ double MathEvalProcessToken( MathEvaluation *eval,
         {
             // parameter maybe
 
-            param = eval->params;
+            param = matheval->params;
             while( param != NULL )
             {
-                if( strncmp( param->name, eval->cursor, param->len ) == 0 )
+                if( strncmp( param->name, matheval->cursor, param->len ) == 0 )
                 {
-                    *token = ETVal;
-                    eval->cursor += param->len;
+                    *token = MET_Val;
+                    matheval->cursor += param->len;
                     return param->value;
                 }
 
@@ -937,217 +937,217 @@ double MathEvalProcessToken( MathEvaluation *eval,
 
             // token maybe
 
-            switch( *eval->cursor )
+            switch( *matheval->cursor )
             {
                 case '\n':
                 case '\r':
                 case '\t':
                 case ' ':
-                    t = ETBlk;
-                    eval->cursor++;
+                    t = MET_Blk;
+                    matheval->cursor++;
                     break;
 
                 case '+':
-                    MathEvalProcessPlusToken( eval, &t);
+                    MathEvalProcessPlusToken( matheval, &t);
                     break;
 
                 case '-':
-                    t = ETSub;
-                    eval->cursor++;
+                    t = MET_Sub;
+                    matheval->cursor++;
                     break;
 
                 case '*':
-                    t = ETMul;
-                    eval->cursor++;
+                    t = MET_Mul;
+                    matheval->cursor++;
                     break;
 
                 case '/':
-                    t = ETDiv;
-                    eval->cursor++;
+                    t = MET_Div;
+                    matheval->cursor++;
                     break;
 
                 case '^':
-                    t = ETExc;
-                    eval->cursor++;
+                    t = MET_Exc;
+                    matheval->cursor++;
                     break;
 
                 case '!':
-                    t = ETFct;
-                    eval->cursor++;
+                    t = MET_Fct;
+                    matheval->cursor++;
                     break;
 
                 case '(':
-                    t = ETrbo;
-                    eval->cursor++;
+                    t = MET_rbo;
+                    matheval->cursor++;
                     break;
 
                 case ')':
-                    t = ETrbc;
-                    eval->cursor++;
+                    t = MET_rbc;
+                    matheval->cursor++;
                     break;
 
                 case '\0':
-                    t = ETEof;
-                    eval->cursor++;
+                    t = MET_Eof;
+                    matheval->cursor++;
                     break;
 
                 case ',':
-                    t = ETcom;
-                    eval->cursor++;
+                    t = MET_com;
+                    matheval->cursor++;
                     break;
 
                 case 'e':
-                    if( strncmp( eval->cursor, "exp", 3 ) == 0 )
+                    if( strncmp( matheval->cursor, "exp", 3 ) == 0 )
                     {
-                        t = ETExp;
-                        eval->cursor += 3;
+                        t = MET_Exp;
+                        matheval->cursor += 3;
                     }
                     else
                     {
                         v = exp( 1 );
-                        t = ETVal;
-                        eval->cursor++;
+                        t = MET_Val;
+                        matheval->cursor++;
                     }
                     break;
 
                 case 'f':
-                    if( strncmp( eval->cursor, "fact", 4 ) == 0 )
+                    if( strncmp( matheval->cursor, "fact", 4 ) == 0 )
                     {
-                        t = ETFac;
-                        eval->cursor += 4;
+                        t = MET_Fac;
+                        matheval->cursor += 4;
                     }
                     else
                     {
-                        t = ETErr;
+                        t = MET_Err;
                     }
                     break;
 
                 case 'p':
-                    if( strncmp( eval->cursor, "pi", 2 ) == 0 )
+                    if( strncmp( matheval->cursor, "pi", 2 ) == 0 )
                     {
                         v = M_PI;
-                        t = ETVal;
-                        eval->cursor += 2;
+                        t = MET_Val;
+                        matheval->cursor += 2;
                     }
-                    else if( strncmp( eval->cursor, "pow", 3 ) == 0 )
+                    else if( strncmp( matheval->cursor, "pow", 3 ) == 0 )
                     {
-                        t = ETPow;
-                        eval->cursor += 3;
+                        t = MET_Pow;
+                        matheval->cursor += 3;
                     }
                     else
                     {
-                        t = ETErr;
+                        t = MET_Err;
                     }
                     break;
 
                 case 'c':
-                    if( strncmp( eval->cursor, "cos", 3 ) == 0 )
+                    if( strncmp( matheval->cursor, "cos", 3 ) == 0 )
                     {
-                        t = ETCos;
-                        eval->cursor += 3;
+                        t = MET_Cos;
+                        matheval->cursor += 3;
                     }
                     else
                     {
-                        t = ETErr;
+                        t = MET_Err;
                     }
                     break;
 
                 case 's':
-                    if( strncmp( eval->cursor, "sin", 3 ) == 0 )
+                    if( strncmp( matheval->cursor, "sin", 3 ) == 0 )
                     {
-                        t = ETSin;
-                        eval->cursor += 3;
+                        t = MET_Sin;
+                        matheval->cursor += 3;
                     }
                     else
                     {
-                        t = ETErr;
+                        t = MET_Err;
                     }
                     break;
 
                 case 't':
-                    if( strncmp( eval->cursor, "tan", 3 ) == 0 )
+                    if( strncmp( matheval->cursor, "tan", 3 ) == 0 )
                     {
-                        t = ETTan;
-                        eval->cursor += 3;
+                        t = MET_Tan;
+                        matheval->cursor += 3;
                     }
                     else
                     {
-                        t = ETErr;
+                        t = MET_Err;
                     }
                     break;
 
                 case 'l':
-                    if( strncmp( eval->cursor, "log", 3 ) == 0 )
+                    if( strncmp( matheval->cursor, "log", 3 ) == 0 )
                     {
-                        t = ETLog;
-                        eval->cursor += 3;
+                        t = MET_Log;
+                        matheval->cursor += 3;
                     }
                     else
                     {
-                        t = ETErr;
+                        t = MET_Err;
                     }
                     break;
 
                 case 'm':
-                    if( strncmp( eval->cursor, "max", 3 ) == 0 )
+                    if( strncmp( matheval->cursor, "max", 3 ) == 0 )
                     {
-                        t = ETMax;
-                        eval->cursor += 3;
+                        t = MET_Max;
+                        matheval->cursor += 3;
                     }
-                    else if( strncmp( eval->cursor, "min", 3 ) == 0 )
+                    else if( strncmp( matheval->cursor, "min", 3 ) == 0 )
                     {
-                        t = ETMin;
-                        eval->cursor += 3;
+                        t = MET_Min;
+                        matheval->cursor += 3;
                     }
                     else
                     {
-                        t = ETErr;
+                        t = MET_Err;
                     }
                     break;
 
                 case 'a':
-                    if( strncmp( eval->cursor, "asin", 4 ) == 0 )
+                    if( strncmp( matheval->cursor, "asin", 4 ) == 0 )
                     {
-                        t = ETASi;
-                        eval->cursor += 4;
+                        t = MET_ASi;
+                        matheval->cursor += 4;
                     }
-                    else if( strncmp( eval->cursor, "acos", 4 ) == 0 )
+                    else if( strncmp( matheval->cursor, "acos", 4 ) == 0 )
                     {
-                        t = ETACo;
-                        eval->cursor += 4;
+                        t = MET_ACo;
+                        matheval->cursor += 4;
                     }
-                    else if( strncmp( eval->cursor, "atan", 4 ) == 0 )
+                    else if( strncmp( matheval->cursor, "atan", 4 ) == 0 )
                     {
-                        t = ETATa;
-                        eval->cursor += 4;
+                        t = MET_ATa;
+                        matheval->cursor += 4;
                     }
-                    else if( strncmp( eval->cursor, "average", 7 ) == 0 )
+                    else if( strncmp( matheval->cursor, "average", 7 ) == 0 )
                     {
-                        t = ETAvg;
-                        eval->cursor += 7;
+                        t = MET_Avg;
+                        matheval->cursor += 7;
                     }
-                    else if( strncmp( eval->cursor, "avg", 3 ) == 0 )
+                    else if( strncmp( matheval->cursor, "avg", 3 ) == 0 )
                     {
-                        t = ETAvg;
-                        eval->cursor += 3;
+                        t = MET_Avg;
+                        matheval->cursor += 3;
                     }
                     else
                     {
-                        t = ETErr;
+                        t = MET_Err;
                     }
                     break;
 
 
                 default:
-                    t = ETErr;
+                    t = MET_Err;
                     break;
             }
         }
     }
 
-    if( t == ETErr )
+    if( t == MET_Err )
     {
-        eval->error = "unexpected symbol";
+        matheval->error = "unexpected symbol";
     }
 
     *token = t;
@@ -1164,20 +1164,20 @@ double MathEvalProcessToken( MathEvaluation *eval,
 // Advances the cursor.
 // Always returns 0.
 
-double MathEvalProcessPlusToken( MathEvaluation *eval, MathEvalToken *token )
+double MathEvalProcessPlusToken( MathEvaluation *matheval, MathEvalToken *token )
 {
     do
     {
-        eval->cursor++;
-    } while( *eval->cursor == ' ' || *eval->cursor == '\n' || *eval->cursor == '\r' || *eval->cursor == '\t' );
+        matheval->cursor++;
+    } while( *matheval->cursor == ' ' || *matheval->cursor == '\n' || *matheval->cursor == '\r' || *matheval->cursor == '\t' );
 
-    if( *eval->cursor == '+' )
+    if( *matheval->cursor == '+' )
     {
-        *token = ETErr;
+        *token = MET_Err;
     }
     else
     {
-        *token = ETSum;
+        *token = MET_Sum;
     }
 
     return 0;
@@ -1189,25 +1189,25 @@ double MathEvalProcessPlusToken( MathEvaluation *eval, MathEvalToken *token )
 // The cursor is positioned after an eventually
 // `+` or `-` operator that comes before the value.
 
-double MathEvalProcessValue( MathEvaluation *eval )
+double MathEvalProcessValue( MathEvaluation *matheval )
 {
     char   *endptr;
     double value;
 
-    value = strtod( eval->cursor, &endptr );
+    value = strtod( matheval->cursor, &endptr );
 
-    if( endptr == eval->cursor )
+    if( endptr == matheval->cursor )
     {
-        eval->error = "expected value";
+        matheval->error = "expected value";
         value = 0;
     }
     else
     {
-        eval->cursor = endptr;
+        matheval->cursor = endptr;
 
         if( eexception( value ) )
         {
-            eval->error = "value is too big";
+            matheval->error = "value is too big";
             return 0;
         }
     }

@@ -97,7 +97,7 @@ Requires root privileges.
 Command line tool usage
 =====
 
-`$ math-eval`
+`$ matheval`
 
 Prints usage info and license.
 
@@ -249,7 +249,7 @@ Examples
 Embedding math-eval in your project
 ===============================
 
-Embedding **math-eval** is trivial. Just add `matheval.h`, `math-eval-private.h` and `math-eval.c` to your project, `#include "math-eval.h"`.
+Embedding **math-eval** is trivial. Just add `matheval.h`, `matheval-private.h` and `matheval.c` to your project, `#include "matheval.h"`.
 
 &nbsp;
 ## Structures
@@ -353,7 +353,7 @@ A note about the algorithm
 
 **Floating point exceptions catching**
 
-Exceptions are catched with the following naive macro (in `math-eval.h`):
+Exceptions are catched with the following naive macro (in `matheval.h`):
 
     #define eexception(n) (isnan(n)||(n)==HUGE_VAL||(n)==INFINITY||(n)==-HUGE_VAL||(n)==-INFINITY)
 
@@ -363,7 +363,7 @@ Note that this approach is *not guaranted 100% to work on every implementation/p
 
 In that case a compilation error should occurr; furthermore **the test suite checks if floating point exceptions are properly catched**. If build or test fail then the macro will need to be adjusted (or disabled in case you don't mind catching floating point exceptions).
 
-Exception catching can be turned off setting to false the constant in `math-eval.h`:
+Exception catching can be turned off setting to false the constant in `matheval.h`:
 
     #define math-eval_catch_fp_exceptions false
 
@@ -375,7 +375,7 @@ As numbers are internally represented and handled with variables of type `double
 
 For example:
 
-    $ math-eval -p 16 '4.456 -1 -3.456'
+    $ matheval -p 16 '4.456 -1 -3.456'
     0.0000000000000004
 
 This is an **expected behavior** and is due to the internal representation of the `double` type.

@@ -29,32 +29,32 @@
 
 enum MathEvalToken
 {
-    ETBlk,   // white space, tab, newline...
-    ETErr,   // unrecognized token (error)
-    ETEof,   // end of string (null termination character)
-    ETSum,   // +
-    ETSub,   // -
-    ETMul,   // *
-    ETDiv,   // /
-    ETExc,   // ^ exponentiation
-    ETFct,   // ! factorial
-    ETSin,   // sin(r)
-    ETCos,   // cos(r)
-    ETTan,   // tan(r)
-    ETASi,   // arcsin(n)
-    ETACo,   // arccos(n)
-    ETATa,   // arctan(n)
-    ETFac,   // fact(n) - factorial, equivalent to n!
-    ETExp,   // exp(n) - equivalent to e^n
-    ETPow,   // pow(b,n) - equivalent to b^n
-    ETLog,   // log(b, n) logarithm of n with base b - or log(n) natural logarithm of n
-    ETMax,   // max(n1, n2, n3...) maximum of 1 or more numbers
-    ETMin,   // min(n1, n2, n3...) minimum of 1 or more numbers
-    ETAvg,   // average(n1, n2, n3...) or avg(n1, ...) average of 1 or more numbers
-    ETrbo,   // round bracket open  (round bracket count increases)
-    ETrbc,   // round bracket close (round bracket count decreases)
-    ETcom,   // comma - argument separator inside functions
-    ETVal    // a number in scientific notation (1 .1 0.1 1.2E-3) or `e` (euler number) or `pi`
+    MET_Blk,   // white space, tab, newline...
+    MET_Err,   // unrecognized token (error)
+    MET_Eof,   // end of string (null termination character)
+    MET_Sum,   // +
+    MET_Sub,   // -
+    MET_Mul,   // *
+    MET_Div,   // /
+    MET_Exc,   // ^ exponentiation
+    MET_Fct,   // ! factorial
+    MET_Sin,   // sin(r)
+    MET_Cos,   // cos(r)
+    MET_Tan,   // tan(r)
+    MET_ASi,   // arcsin(n)
+    MET_ACo,   // arccos(n)
+    MET_ATa,   // arctan(n)
+    MET_Fac,   // fact(n) - factorial, equivalent to n!
+    MET_Exp,   // exp(n) - equivalent to e^n
+    MET_Pow,   // pow(b,n) - equivalent to b^n
+    MET_Log,   // log(b, n) logarithm of n with base b - or log(n) natural logarithm of n
+    MET_Max,   // max(n1, n2, n3...) maximum of 1 or more numbers
+    MET_Min,   // min(n1, n2, n3...) minimum of 1 or more numbers
+    MET_Avg,   // average(n1, n2, n3...) or avg(n1, ...) average of 1 or more numbers
+    MET_rbo,   // round bracket open  (round bracket count increases)
+    MET_rbc,   // round bracket close (round bracket count decreases)
+    MET_com,   // comma - argument separator inside functions
+    MET_Val    // a number in scientific notation (1 .1 0.1 1.2E-3) or `e` (euler number) or `pi`
 };
 typedef enum MathEvalToken MathEvalToken;
 
