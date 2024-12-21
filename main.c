@@ -10,7 +10,7 @@
 
 
 
-#include "math-eval.h"
+#include "matheval.h"
 
 #include <stdio.h>
 #include <stdlib.h>

@@ -15,7 +15,7 @@ install:
     ifeq ($(wildcard matheval-test), matheval-test)
 	    rm -f matheval-test
     endif
-	mv -i math-eval /usr/local/bin/matheval
+	mv -i matheval /usr/local/bin/matheval
 
 # removes matheval from /usr/local/bin
 clean:
