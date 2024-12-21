@@ -1,7 +1,7 @@
 math-eval - A math expression evaluator in C
 ===
 
-`version 2.0`
+`version 2.1`
 
 **math-eval** is a library to evaluate a mathematical expressions: supply the espression as a C string and get the result as a `double` value.
 
@@ -25,15 +25,15 @@ main()
     const char     *expression = "fooBAR^3 + sin(pi/8!) * 10e3";
     double          result;
     MathEvaluation *me;
-    
+
     me = MathEvaluationNew( expression, &result );
-    
+
     MathEvaluationSetParam( me, "fooBAR", 2 );
-    
+
     MathEvaluationPerform( me, &result );
-    
+
     printf( "%f.6\n", result); // ==> 8.779165
-    
+
     MathEvaluationDispose( me );
 }
 ```
@@ -49,7 +49,7 @@ $ matheval -p 6 '2^3 + sin(pi/8!) * 10e3'
 
 
 
-    
+
 
 &nbsp;
 
@@ -277,7 +277,7 @@ In the unlikely case that memory allocation fails then NULL is returned.
 ### MathEvaluationSetParam
 
 `MathEvaluationStatus MathEvaluationSetParam( MathEvaluation *mathEvaluation,`
-`                                             const char     *name,` 
+`                                             const char     *name,`
 `                                             double         value );`
 
 Define a named parameter and its value.
@@ -287,7 +287,7 @@ If the parameter already exists its value is overridden.
 The parameter name must begin with a letter.
 Prameter name is case-sensitive.
 Allowed characters are `A-Za-z0-9`.
-The parameter must not be a reserved keyword (ex. `cos`, `pi`...) 
+The parameter must not be a reserved keyword (ex. `cos`, `pi`...)
 The returned value is `MathEvaluationSuccess` or `MathEvaluationFailure`.
 
 &nbsp;
@@ -300,7 +300,7 @@ The returned value is `MathEvaluationSuccess` or `MathEvaluationFailure`.
 Performs the math expression evaluation.
 
 `MathEvaluationStatus MathEvaluationSetParam( MathEvaluation *mathEvaluation,`
-`                                             const char     *name,` 
+`                                             const char     *name,`
 `                                             double         value );`
 
 Define a named parameter and its value.
@@ -309,7 +309,7 @@ Several defined parameter may be added to the MathEvaluation.
 If the parameter already exists its value is overridden.
 The parameter name must begin with a letter.
 Allowed characters are `A-Za-z0-9`.
-The parameter must not be a reserved keyword (ex. `cos`, `pi`...) 
+The parameter must not be a reserved keyword (ex. `cos`, `pi`...)
 The returned value is `MathEvaluationSuccess` or `MathEvaluationFailure`.
 
 &nbsp;
@@ -318,7 +318,7 @@ The returned value is `MathEvaluationSuccess` or `MathEvaluationFailure`.
 
 `const char *MathEvaluationGetError( MathEvaluation *mathEvaluation,
                                      int            *position );`
-                                     
+
 In case of *MathEvaluationFailure* returns a string explaining the error.
 If the error occurred during the evaluation `MathEvaluationPerform` then the approximate position of the error in the expression is returned.
 
@@ -327,7 +327,7 @@ If the error occurred during the evaluation `MathEvaluationPerform` then the app
 ### MathEvaluationPrintError
 
 `void MathEvaluationPrintError( MathEvaluation *mathEvaluation );`
-                                     
+
 Utility function that prints to stdout the error.
 
 &nbsp;
@@ -335,7 +335,7 @@ Utility function that prints to stdout the error.
 ### MathEvaluationGetResult
 
 `double MathEvaluationGetResult( MathEvaluation *mathEvaluation );`
-                                     
+
 Utility function that returns the result of the last evaluation performed.
 
 &nbsp;
@@ -343,7 +343,7 @@ Utility function that returns the result of the last evaluation performed.
 ### MathEvaluationDispose
 
 `void MathEvaluationDispose( MathEvaluation *mathEvaluation );`
-                                     
+
 Free up memory.
 
 &nbsp;
