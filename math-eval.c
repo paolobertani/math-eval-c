@@ -609,29 +609,13 @@ double MathEvalProcessFactors(
 
         if( nextOp == ETFct )
         {
-            if( math_eval_unary_minus_has_highest_precedence )
-            {
-                rightValue = MathEvalProcessFactorial( eval, rightValue * sign, &nextOp );
-                sign = 1;
-            }
-            else
-            {
-                rightValue = MathEvalProcessFactorial( eval, rightValue, &nextOp );
-            }
+            rightValue = MathEvalProcessFactorial( eval, rightValue, &nextOp );
             if( eval->error ) return 0;
         }
 
         if( nextOp == ETExc )
         {
-            if( math_eval_unary_minus_has_highest_precedence )
-            {
-                rightValue = MathEvalProcessExponentiation( eval, rightValue * sign, &nextOp );
-                sign = 1;
-            }
-            else
-            {
-                rightValue = MathEvalProcessExponentiation( eval, rightValue, &nextOp );
-            }
+            rightValue = MathEvalProcessExponentiation( eval, rightValue, &nextOp );
             if( eval->error ) return 0;
         }
 

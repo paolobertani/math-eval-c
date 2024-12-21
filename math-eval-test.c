@@ -7,7 +7,7 @@
 
 
 
-#include "math-eval.h"
+#include "matheval.h"
 
 #include <math.h>
 #include <stdio.h>
@@ -205,21 +205,12 @@ void MathEvalRunTests( void )
 
     // Unary minus precedence
 
-    #if eeval_unary_minus_has_highest_precedence
-    // Unary minus has highest precedence
-    MathEvalTest( __LINE__, MathEvaluationSuccess,  9,  "-3^2" );   // (-3)^2
-    MathEvalTest( __LINE__, MathEvaluationSuccess, .25, "2^-2" );   //
-    MathEvalTest( __LINE__, MathEvaluationSuccess,  9,  "5+-2^2" ); // unary minus has always highest precedence
-    MathEvalTest( __LINE__, MathEvaluationSuccess,  4,  "-2^2" );   //
-    MathEvalTest( __LINE__, MathEvaluationFailure,  0,  "-3!" );    // * (-3)!
-    #else
-    // Unary minus has lowest precedence (with exceptions)
+    // Unary minus has lowest precedence
     MathEvalTest( __LINE__, MathEvaluationSuccess, -9,  "-3^2" );   // -(3^2)
     MathEvalTest( __LINE__, MathEvaluationSuccess, .25, "2^-2" );   // to make sense unary minus has highest precedence after a binary operator but...
     MathEvalTest( __LINE__, MathEvaluationSuccess,  1,  "5+-2^2" ); // ...has lowest precedence after `+`
     MathEvalTest( __LINE__, MathEvaluationSuccess, -4,  "-2^2" );   // -(2^.5)
     MathEvalTest( __LINE__, MathEvaluationSuccess, -6,  "-3!" );    // -(3!)
-    #endif
 
 
     // Whitespace (with some of the above)
