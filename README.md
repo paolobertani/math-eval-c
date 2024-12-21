@@ -225,26 +225,35 @@ If the expression is malformed or it is correct but would result in math operati
 Examples
 ========
 
-    $ matheval -p 0 '2+2'
-    4
-&nbsp;
-
-    $ matheval '-.3E2 * sin( -.5 * pi ) - 3 * log( e, e^1E1 ) + 3!'
-    6.000
+```bash
+$ matheval -p 0 '2+2'
+4
+```
 
 &nbsp;
 
-    $ matheval '(-2)^.5'
-    result is complex or too big
-    (-2)^.5
+```bash
+$ matheval '-.3E2 * sin( -.5 * pi ) - 3 * log( e, e^1E1 ) + 3!'
+6.000
+```
+
+&nbsp;
+
+```bash
+$ matheval '(-2)^.5'
+result is complex or too big
+(-2)^.5
           ^
+```
 
 &nbsp;
 
-    $ matheval '(2))^.5'
-    unexpected close round bracket
-    (2))^.5
-        ^
+```bash
+$ matheval '(2))^.5'
+unexpected close round bracket
+(2))^.5
+    ^
+```
 
 &nbsp;
 
@@ -269,7 +278,7 @@ Normally you'll use a pointer to it: `MathEvaluation *mathEvaluation;`
 
 ### MathEvaluationNew
 
-```
+```C
 MathEvaluation *MathEvaluationNew( const char *expression );
 ```
 
@@ -280,7 +289,7 @@ In the unlikely case that memory allocation fails then NULL is returned.
 
 ### MathEvaluationSetParam
 
-```
+```C
 MathEvaluationStatus MathEvaluationSetParam( MathEvaluation *mathEvaluation,
                                                  const char *name,
                                                      double  value );
@@ -300,14 +309,14 @@ The returned value is `MathEvaluationSuccess` or `MathEvaluationFailure`.
 
 ### MathEvaluationPerform
 
-```
+```C
 MathEvaluationStatus MathEvaluationPerform( MathEvaluation *mathEvaluation,
                                                     double *result );
 ```
 
 Performs the math expression evaluation.
 
-```
+```C
 MathEvaluationStatus MathEvaluationSetParam( MathEvaluation *mathEvaluation,
                                                  const char *name,
                                                      double  value );
@@ -326,7 +335,7 @@ The returned value is `MathEvaluationSuccess` or `MathEvaluationFailure`.
 
 ### MathEvaluationGetError
 
-```
+```C
 const char *MathEvaluationGetError( MathEvaluation *mathEvaluation,
                                                int *position );
 ```
@@ -338,7 +347,7 @@ If the error occurred during the evaluation `MathEvaluationPerform` then the app
 
 ### MathEvaluationPrintError
 
-```
+```C
 void MathEvaluationPrintError( MathEvaluation *mathEvaluation );
 ```
 
@@ -348,7 +357,7 @@ Utility function that prints to stdout the error.
 
 ### MathEvaluationGetResult
 
-```
+```C
 double MathEvaluationGetResult( MathEvaluation *mathEvaluation );
 ```
 
@@ -358,11 +367,11 @@ Utility function that returns the result of the last evaluation performed.
 
 ### MathEvaluationDispose
 
-```
+```C
 void MathEvaluationDispose( MathEvaluation *mathEvaluation );
 ```
 
-Free up memory.
+Frees up memory.
 
 &nbsp;
 
@@ -373,7 +382,9 @@ A note about the algorithm
 
 Exceptions are catched with the following naive macro (in `matheval.h`):
 
-    #define eexception(n) (isnan(n)||(n)==HUGE_VAL||(n)==INFINITY||(n)==-HUGE_VAL||(n)==-INFINITY)
+```C
+#define eexception(n) (isnan(n)||(n)==HUGE_VAL||(n)==INFINITY||(n)==-HUGE_VAL||(n)==-INFINITY)
+```
 
 ...that is expected to evaluate as `true` when `n` is the result of a math operation that caused overflow or a number that cannot be represented (ex. a complex number).
 
@@ -393,8 +404,10 @@ As numbers are internally represented and handled with variables of type `double
 
 For example:
 
-    $ matheval -p 16 '4.456 -1 -3.456'
-    0.0000000000000004
+```bash
+$ matheval -p 16 '4.456 -1 -3.456'
+0.0000000000000004
+```
 
 This is an **expected behavior** and is due to the internal representation of the `double` type.
 
