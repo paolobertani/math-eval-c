@@ -267,7 +267,9 @@ Normally you'll use a pointer to it: `MathEvaluation *mathEvaluation;`
 
 ### MathEvaluationNew
 
-`MathEvaluation *MathEvaluationNew( const char *expression );`
+```
+MathEvaluation *MathEvaluationNew( const char *expression );
+```
 
 Allocate and initialize the MathEvaluation structure; `expression` is copied.
 In the unlikely case that memory allocation fails then NULL is returned.
@@ -276,9 +278,11 @@ In the unlikely case that memory allocation fails then NULL is returned.
 
 ### MathEvaluationSetParam
 
-`MathEvaluationStatus MathEvaluationSetParam( MathEvaluation *mathEvaluation,`
-`                                             const char     *name,`
-`                                             double         value );`
+```
+MathEvaluationStatus MathEvaluationSetParam( MathEvaluation *mathEvaluation,
+                                                 const char *name,
+                                                     double  value );
+```
 
 Define a named parameter and its value.
 `name` is copied.
@@ -294,14 +298,18 @@ The returned value is `MathEvaluationSuccess` or `MathEvaluationFailure`.
 
 ### MathEvaluationPerform
 
-`MathEvaluationStatus MathEvaluationPerform( MathEvaluation *mathEvaluation,`
-`                                            double         *result );`
+```
+MathEvaluationStatus MathEvaluationPerform( MathEvaluation *mathEvaluation,
+                                                    double *result );
+```
 
 Performs the math expression evaluation.
 
-`MathEvaluationStatus MathEvaluationSetParam( MathEvaluation *mathEvaluation,`
-`                                             const char     *name,`
-`                                             double         value );`
+```
+MathEvaluationStatus MathEvaluationSetParam( MathEvaluation *mathEvaluation,
+                                                 const char *name,
+                                                     double  value );
+```
 
 Define a named parameter and its value.
 `name` is copied.
@@ -316,8 +324,10 @@ The returned value is `MathEvaluationSuccess` or `MathEvaluationFailure`.
 
 ### MathEvaluationGetError
 
-`const char *MathEvaluationGetError( MathEvaluation *mathEvaluation,
-                                     int            *position );`
+```
+const char *MathEvaluationGetError( MathEvaluation *mathEvaluation,
+                                               int *position );
+```
 
 In case of *MathEvaluationFailure* returns a string explaining the error.
 If the error occurred during the evaluation `MathEvaluationPerform` then the approximate position of the error in the expression is returned.
@@ -326,7 +336,9 @@ If the error occurred during the evaluation `MathEvaluationPerform` then the app
 
 ### MathEvaluationPrintError
 
-`void MathEvaluationPrintError( MathEvaluation *mathEvaluation );`
+```
+void MathEvaluationPrintError( MathEvaluation *mathEvaluation );
+```
 
 Utility function that prints to stdout the error.
 
@@ -334,7 +346,9 @@ Utility function that prints to stdout the error.
 
 ### MathEvaluationGetResult
 
-`double MathEvaluationGetResult( MathEvaluation *mathEvaluation );`
+```
+double MathEvaluationGetResult( MathEvaluation *mathEvaluation );
+```
 
 Utility function that returns the result of the last evaluation performed.
 
@@ -342,7 +356,9 @@ Utility function that returns the result of the last evaluation performed.
 
 ### MathEvaluationDispose
 
-`void MathEvaluationDispose( MathEvaluation *mathEvaluation );`
+```
+void MathEvaluationDispose( MathEvaluation *mathEvaluation );
+```
 
 Free up memory.
 
