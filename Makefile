@@ -3,22 +3,22 @@ CC=clang
 CFLAGS=-Wall
 
 # default build
-all: main.c math-eval.c math-eval.h
-	$(CC) $(CFLAGS) main.c math-eval.c -o math-eval
-	$(CC) $(CFLAGS) math-eval-test.c math-eval.c -o math-eval-test
+all: main.c matheval.c matheval.h
+	$(CC) $(CFLAGS) main.c matheval.c -o matheval
+	$(CC) $(CFLAGS) matheval-test.c matheval.c -o matheval-test
 	@echo "Running tests:"
-	./math-eval-test
+	./matheval-test
 
-# install math-eval into /usr/local/bin
+# install matheval into /usr/local/bin
 install:
-	$(CC) $(CFLAGS) main.c math-eval.c -o math-eval
-    ifeq ($(wildcard math-eval-test), math-eval-test)
-	    rm -f math-eval-test
+	$(CC) $(CFLAGS) main.c matheval.c -o matheval
+    ifeq ($(wildcard matheval-test), matheval-test)
+	    rm -f matheval-test
     endif
-	mv -i math-eval /usr/local/bin/math-eval
+	mv -i math-eval /usr/local/bin/matheval
 
-# removes math-eval from /usr/local/bin
+# removes matheval from /usr/local/bin
 clean:
-	rm -f /usr/local/bin/math-eval
+	rm -f /usr/local/bin/matheval
 
 .PHONY: all install clean

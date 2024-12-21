@@ -18,7 +18,7 @@ Example: *Two raised to the power of three plus the sine of* ***π*** *divided b
 **in your project:**
 
 ```
-#include "math-eval.h"
+#include "matheval.h"
 
 main()
 {
@@ -61,7 +61,7 @@ Building the Command Line Tool
 
 `$ make`
 
-Compiles the code and put both the executable `math-eval` and the tests `math-eval-test` in the current working directory.
+Compiles the code and put both the executable `matheval` and the tests `matheval-test` in the current working directory.
 
 Tests execution is run at the end of the build process.
 
@@ -82,7 +82,7 @@ Compiles the code and put the executable into `/usr/local/bin`
 
 Requires root privileges.
 
-If `math-eval` is already present on the destination directory you'll be prompted for confirmation before overwriting.
+If `matheval` is already present on the destination directory you'll be prompted for confirmation before overwriting.
 
 &nbsp;
 
@@ -103,7 +103,7 @@ Prints usage info and license.
 
 &nbsp;
 
-`$ math-eval [-p n] expr`
+`$ matheval [-p n] expr`
 
 Evaluates the expression `expr` and prints the result.
 
@@ -249,7 +249,7 @@ Examples
 Embedding math-eval in your project
 ===============================
 
-Embedding **math-eval** is trivial. Just add `math-eval.h`, `math-eval-private.h` and `math-eval.c` to your project, `#include "math-eval.h"`.
+Embedding **math-eval** is trivial. Just add `matheval.h`, `math-eval-private.h` and `math-eval.c` to your project, `#include "math-eval.h"`.
 
 &nbsp;
 ## Structures

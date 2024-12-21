@@ -43,7 +43,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
 
-#include "math-eval.h"
+#include "matheval.h"
 
 #include <math.h>
 #include <stdio.h>
