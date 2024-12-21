@@ -17,7 +17,7 @@ Example: *Two raised to the power of three plus the sine of* ***π*** *divided b
 
 **in your project:**
 
-```
+```C
 #include "matheval.h"
 
 main()
@@ -41,7 +41,7 @@ main()
 
 **in the terminal:**
 
-```
+```bash
 $ matheval -p 6 '2^3 + sin(pi/8!) * 10e3'
 8.779165
 ```
@@ -69,7 +69,7 @@ Tests execution is run at the end of the build process.
 
 Try it on the command line:
 
-```
+```bash
 $ ./matheval -p 5 'cos(-pi)'
 -1.00000
 ```
@@ -114,7 +114,9 @@ to place the expression between **'**single**'** quotes
 
 &nbsp;
 
-**Supported operators are:**
+Expressions syntax reference
+=====
+**Operators are:**
 
 `+` plus
 
@@ -131,7 +133,7 @@ to place the expression between **'**single**'** quotes
 &nbsp;
 
 
-**Supported functions are:**
+**Available functions are:**
 
 `sin(r)`  sine
 
